@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,6 +7,7 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     CharacterController pawn;
+    PlayerTargeting targetingScript;
 
     public Camera cam;
 
@@ -16,6 +18,8 @@ public class PlayerMovement : MonoBehaviour
 
     public Transform boneLegLeft;
     public Transform boneLegRight;
+    public Transform boneHip;
+    public Transform boneSpine;
 
     public bool isGrounded
     {
@@ -30,6 +34,7 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         pawn = GetComponent<CharacterController>();
+        targetingScript = GetComponent<PlayerTargeting>();
     }
 
     void Update()
@@ -41,8 +46,22 @@ public class PlayerMovement : MonoBehaviour
 
         bool playerWantsToMove = (v != 0 || h != 0);
 
-        // Turn to look at camera if player moving 
-        if (cam && playerWantsToMove)
+        bool playerIsAiming = (targetingScript && targetingScript.playerWantsToAim && targetingScript.target);
+
+        if (playerIsAiming)
+        {
+            Vector3 toTarget = targetingScript.target.transform.position - transform.position;
+            toTarget.Normalize();
+
+            Quaternion worldRot = Quaternion.LookRotation(toTarget);
+            Vector3 euler = worldRot.eulerAngles;
+            euler.x = 0;
+            euler.z = 0;
+            worldRot.eulerAngles = euler;
+
+            transform.rotation = AnimMath.Ease(transform.rotation, worldRot, .01f);
+        }
+        else if(cam && playerWantsToMove) // Turn to look at camera if player moving 
         {
             float playerYaw = cam.transform.eulerAngles.y;
             float camYaw = cam.transform.eulerAngles.y;
@@ -73,9 +92,21 @@ public class PlayerMovement : MonoBehaviour
 
         Vector3 moveAmount = inputDir * walkSpeed + Vector3.up * velocityVertical;
         pawn.Move(moveAmount * Time.deltaTime);
-        if (pawn.isGrounded) cooldownJumpWindow = .5f;
+        if (pawn.isGrounded)
+        {
+            cooldownJumpWindow = .5f;
+            velocityVertical = 0;
+            WalkAnimation();
+        }
+        else
+        {
+            AirAnimation();
+        }
+    }
 
-        WalkAnimation();
+    private void AirAnimation()
+    {
+        
     }
 
     void WalkAnimation()
@@ -92,5 +123,12 @@ public class PlayerMovement : MonoBehaviour
 
         boneLegLeft.localRotation = Quaternion.AngleAxis(wave, axis);
         boneLegRight.localRotation = Quaternion.AngleAxis(-wave, axis);
+
+        if (boneHip)
+        {
+            float walkAmount = axis.magnitude;
+            float offsetY = Mathf.Cos(Time.time * speed) * walkAmount * .05f;
+            boneHip.localPosition = new Vector3(0, offsetY, 0);
+        }
     }
 }
