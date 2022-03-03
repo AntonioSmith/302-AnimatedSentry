@@ -16,6 +16,8 @@ public class PlayerMovement : MonoBehaviour
     [Range(-10, -1)]
     public float gravity = -1;
 
+    public Transform boneShoulderLeft;
+    public Transform boneShoulderRight;
     public Transform boneLegLeft;
     public Transform boneLegRight;
     public Transform boneHip;
@@ -44,9 +46,24 @@ public class PlayerMovement : MonoBehaviour
         float v = Input.GetAxisRaw("Vertical"); // The Raw part bypasses project settings, using getaxis would basically add easing
         float h = Input.GetAxisRaw("Horizontal");
 
-        bool playerWantsToMove = (v != 0 || h != 0);
+        bool wantsToRun = Input.GetKey(KeyCode.LeftShift); // If holding shift, start sprinting
 
+        if (wantsToRun) // If running, set walkspeed to 10, else set walkspeed to 5
+        {
+            walkSpeed = 10;
+        }
+        else
+        {
+            walkSpeed = 5;
+        }
+
+        bool playerWantsToMove = (v != 0 || h != 0);
         bool playerIsAiming = (targetingScript && targetingScript.playerWantsToAim && targetingScript.target);
+
+        if (!playerWantsToMove)
+        {
+            IdleAnimation();
+        }
 
         if (playerIsAiming)
         {
@@ -102,6 +119,17 @@ public class PlayerMovement : MonoBehaviour
         {
             AirAnimation();
         }
+    }
+
+    private void IdleAnimation()
+    {
+        float speed = 500f; // speed of arm movement
+        float height = 200f; // how high the shoulders go
+
+        // Animate arms to slowly move up and down
+        Vector3 pos = boneShoulderLeft.transform.position; // set the shoulder bone to a variable
+        float shoulderHeight = Mathf.Sin(Time.time * speed); // change shoulderHeight along a sin wave
+        pos = new Vector3(pos.x, shoulderHeight, pos.z) * height; // move left shoulder along sin wave
     }
 
     private void AirAnimation()

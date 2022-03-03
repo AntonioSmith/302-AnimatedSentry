@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,6 +12,11 @@ public class PlayerTargeting : MonoBehaviour
     public PointAt boneShoulderRight;
     public PointAt boneShoulderLeft;
 
+    public Transform leftBarrel;
+    public Transform rightBarrel;
+
+    public GameObject bullet;
+
     private List<TargetableObject> validTargets = new List<TargetableObject>();
 
     public TargetableObject target { get; private set; }
@@ -19,10 +25,13 @@ public class PlayerTargeting : MonoBehaviour
     private float cooldownPickTarget = 0;
     private float cooldownAttack = 0;
 
+    private bool shotLeftBarrel = false; // Check if left barrel was fired
+    
     private CameraController cam;
 
     public bool playerWantsToAim { get; private set; }
     public bool playerWantsToAttack { get; private set; }
+
 
     private void Start()
     {
@@ -77,13 +86,35 @@ public class PlayerTargeting : MonoBehaviour
         if (!CanSeeThing(target)) return;
 
         cooldownAttack = 1f / roundsPerSecond;
+        
+        SpawnBullet(); // Shoot Bullet
 
-        // TODO: Do an attack
-
-        boneShoulderLeft.transform.localEulerAngles += new Vector3(-30, 0, 0);
-        boneShoulderRight.transform.localEulerAngles += new Vector3(-30, 0, 0);
+        if (shotLeftBarrel) // If shotleftBarrel is true, animate right arm
+        {
+            boneShoulderRight.transform.localEulerAngles += new Vector3(-30, 0, 0);
+        }
+        else // If shotleftBarrel is false, animate left arm
+        {
+            boneShoulderLeft.transform.localEulerAngles += new Vector3(-30, 0, 0);
+        }        
 
         if(cam) cam.Shake(.25f);
+    }
+
+    // Spawn bullet on hand blasters
+    private void SpawnBullet()
+    {
+        if (shotLeftBarrel) // If shotleftBarrel is true, fire right barrel
+        {
+            shotLeftBarrel = false;
+            Instantiate(bullet, rightBarrel.transform.position, rightBarrel.transform.rotation);
+        }
+        else // If shotleftBarrel is false, fire left barrel
+        {
+            shotLeftBarrel = true;
+            Instantiate(bullet, leftBarrel.transform.position, leftBarrel.transform.rotation);
+        }
+        
     }
 
     void ScanForTargets()
