@@ -25,7 +25,7 @@ public class PlayerTargeting : MonoBehaviour
     private float cooldownPickTarget = 0;
     private float cooldownAttack = 0;
 
-    private bool shotLeftBarrel = false; // Check if left barrel was fired
+    private bool shotRightBarrel = false; // Check if right barrel was fired
     
     private CameraController cam;
 
@@ -89,11 +89,11 @@ public class PlayerTargeting : MonoBehaviour
         
         SpawnBullet(); // Shoot Bullet
 
-        if (shotLeftBarrel) // If shotleftBarrel is true, animate right arm
+        if (shotRightBarrel) // If shotRightBarrel is true, animate right arm
         {
             boneShoulderRight.transform.localEulerAngles += new Vector3(-30, 0, 0);
         }
-        else // If shotleftBarrel is false, animate left arm
+        else // If shotRightBarrel is false, animate left arm
         {
             boneShoulderLeft.transform.localEulerAngles += new Vector3(-30, 0, 0);
         }        
@@ -104,15 +104,15 @@ public class PlayerTargeting : MonoBehaviour
     // Spawn bullet on hand blasters
     private void SpawnBullet()
     {
-        if (shotLeftBarrel) // If shotleftBarrel is true, fire right barrel
+        if (shotRightBarrel) // If shotrightBarrel is true, fire right barrel
         {
-            shotLeftBarrel = false;
-            Instantiate(bullet, rightBarrel.transform.position, rightBarrel.transform.rotation);
-        }
-        else // If shotleftBarrel is false, fire left barrel
-        {
-            shotLeftBarrel = true;
+            shotRightBarrel = false;
             Instantiate(bullet, leftBarrel.transform.position, leftBarrel.transform.rotation);
+        }
+        else // If shotrightBarrel is false, fire left barrel
+        {
+            shotRightBarrel = true;
+            Instantiate(bullet, rightBarrel.transform.position, rightBarrel.transform.rotation);
         }
         
     }

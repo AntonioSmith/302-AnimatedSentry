@@ -74,9 +74,10 @@ public class CameraController : MonoBehaviour
             dollyDis = Mathf.Clamp(dollyDis, 3, 20); // Clamp zoom range
 
         // Ease towards dolly position
-        float tempZ = isAiming ? 2 : dollyDis; // If isAiming is true return 2, if false return dollyDis
+        float tempY = isAiming ? 4 : 0; // If isAiming is true return 4, if false return 0
+        float tempZ = isAiming ? 4 : dollyDis; // If isAiming is true return 4, if false return dollyDis
 
-        cam.transform.localPosition = AnimMath.Ease(cam.transform.localPosition, new Vector3(0, 0, -tempZ), .2f);
+        cam.transform.localPosition = AnimMath.Ease(cam.transform.localPosition, new Vector3(0, tempY, -tempZ), .2f);
 
         // Rotate Camera Object
         if (isAiming)
