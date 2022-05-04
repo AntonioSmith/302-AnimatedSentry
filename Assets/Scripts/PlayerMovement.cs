@@ -130,6 +130,7 @@ public class PlayerMovement : MonoBehaviour
         Vector3 pos = boneShoulderLeft.transform.position; // set the shoulder bone to a variable
         float shoulderHeight = Mathf.Sin(Time.time * speed); // change shoulderHeight along a sin wave
         pos = new Vector3(pos.x, shoulderHeight, pos.z) * height; // move left shoulder along sin wave
+        print("Idling");
     }
 
     private void AirAnimation()
